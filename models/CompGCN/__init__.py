@@ -1,0 +1,1 @@
+from .models import CompGCN_TransE_DDI
