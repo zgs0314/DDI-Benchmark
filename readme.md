@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ### Dataset Preparation
 
-This work uses 2 different datasets, which can be downloaded from this [link](https://drive.google.com/file/d/1Scpur6Lj7QwoHemSh6K941T1-XSCfSbp/view?. Please unzip the downloaded files into a folder naned `data` within the directory. 
+This work uses 2 different datasets, which can be downloaded from this [link](https://drive.google.com/file/d/1Scpur6Lj7QwoHemSh6K941T1-XSCfSbp/view). Please unzip the downloaded files into a folder naned `data` within the directory. 
 
 ### Benchmarking
 
