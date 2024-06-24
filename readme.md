@@ -25,7 +25,7 @@ Running the model training step.
 python main.py --model MLP --dataset drugbank
 ```
 
-+ Model choice: CompGCN, SkipGNN, ComplEx, MSTE, MLP, KGDDI', CSMDDI, HINDDI, Decagon, SumGNN, KnowDDI, EmerGNN
++ Model choice: CompGCN, SkipGNN, ComplEx, MSTE, MLP, KGDDI, CSMDDI, HINDDI, Decagon, SumGNN, KnowDDI, EmerGNN
 + Dataset choice: drugbank, twosides
 + Other hypermeters can also be adapted. 
 
