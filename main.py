@@ -11,16 +11,17 @@ def main():
     ### set process name
 
     ### set hyperparameters
-    parser = argparse.ArgumentParser(description='Task Aware Relation Graph for Few-shot Chemical Property Prediction')
+    parser = argparse.ArgumentParser(description='DDI Benchmark')
     # general hyperparameters
-    parser.add_argument('--model', type=str, default='KnowDDI', choices=['CompGCN', 'SkipGNN', 'ComplEx', 'MSTE', 'MLP', 'KGDDI', 'CSMDDI', 'HINDDI', 'Decagon', 'SumGNN', 'KnowDDI', 'EmerGNN'])
+    parser.add_argument('--model', type=str, default='EmerGNN', choices=['CompGCN', 'SkipGNN', 'ComplEx', 'MSTE', 'MLP', 'KGDDI', 'CSMDDI', 'HINDDI', 'Decagon', 'SumGNN', 'KnowDDI', 'EmerGNN'])
     parser.add_argument('--problem', type=str, default='DDI', choices=['DDI'])
     parser.add_argument('--DDIsetting', type=str, default='all', choices=['S0', 'S1', 'S2', 'all'])
-    parser.add_argument('--dataset', type=str, default='drugbank', choices=['drugbank', 'twosides'])
+    parser.add_argument('--dataset', type=str, default='twosides', choices=['drugbank', 'twosides'])
     parser.add_argument('--bionet', type=str, default='PrimeKG', choices=['HetioNet', 'PrimeKG'])
     parser.add_argument('--name', default='testrun', help='Set run name for saving/restoring models')
 
-    parser.add_argument('--gpu', type=int, default=7)
+    parser.add_argument('--gpu', type=int, default=4)
+    parser.add_argument('--disable_cuda', action='store_true', help='Disable CUDA')
     parser.add_argument("--lr", type=float, default=0.001, help="learning rate")
     parser.add_argument("--weight_decay", type=float, default=5e-5, help="weight_decay")
     parser.add_argument('--lbl_smooth',	type=float,     default=0.0,	help='Label Smoothing') ### usually 0-1
@@ -74,8 +75,6 @@ def main():
 
     ### SumGNN model
     parser.add_argument('--setting_SumGNN', type=str, default='S0', help='hidden dimension.')
-
-    ### KnowDDI model
 
     ### EmerGNN model
     parser.add_argument('--setting_EmerGNN', type=str, default='S0', help='hidden dimension.')

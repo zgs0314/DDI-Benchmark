@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ### Dataset Preparation
 
-This work uses 2 different datasets, which can be downloaded from this [link](https://drive.google.com/file/d/1Scpur6Lj7QwoHemSh6K941T1-XSCfSbp/view). Please unzip the downloaded files into a folder naned `data` within the directory. 
+This work uses 2 different datasets, which can be downloaded from this [link](https://drive.google.com/file/d/1Scpur6Lj7QwoHemSh6K941T1-XSCfSbp/view?usp=sharing). Please unzip the downloaded files into a folder naned `data` within the directory. 
 
 ### Benchmarking
 
@@ -29,4 +29,9 @@ python main.py --model MLP --dataset drugbank
 + Dataset choice: drugbank, twosides
 + Other hypermeters can also be adapted. 
 
-### Reference
+### Dataset Information
+
+|Dataset|#Nodes|#Relations|#Triplets|
+|---|---|---|---|
+|DrugBank|1710|86|188509|
+|TWOSIDES|645|209|116650|

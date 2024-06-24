@@ -4,32 +4,19 @@ import json
 import torch
 
 
-def initialize_experiment(params, file_name):
+def initialize_experiment(params, file_name, file_namee):
     """
     Makes the experiment directory, sets standard paths and initializes the logger
     """
     params.main_dir = os.path.join(os.path.relpath(os.path.dirname(os.path.abspath(__file__))), '..')
-    global_exps_dir = os.path.join(params.main_dir, 'experiments')
-    if not os.path.exists(global_exps_dir):
-        os.makedirs(global_exps_dir)
 
-    params.exp_dir = os.path.join(global_exps_dir, params.experiment_name)
+    params.exp_dir = params.main_dir
 
-    if not os.path.exists(params.exp_dir):
-        os.makedirs(params.exp_dir)
-    
-    file_handler = logging.FileHandler(os.path.join(params.exp_dir, "log_train.txt"))
-    
-    logger = logging.getLogger()
-    logger.addHandler(file_handler)
-
-    logger.info('============ Initialized logger ============')
-    logger.info('\t '.join('%s: %s' % (k, str(v)) for k, v
-                          in sorted(dict(vars(params)).items())))
-    logger.info('============================================')
-
-    with open(os.path.join(params.exp_dir, "params.json"), 'w') as fout:
-        json.dump(vars(params), fout)
+    with open(os.path.join(params.exp_dir, '../../..' ,'record' ,file_namee + '.txt'), 'w') as fout:
+        fout.write('============ Initialized logger ============')
+        fout.write('\t '.join('%s: %s' % (k, str(v)) for k, v
+                      in sorted(dict(vars(params)).items())))
+        fout.write('============================================')
 
 
 def initialize_model(params, model):

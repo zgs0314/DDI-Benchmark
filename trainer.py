@@ -32,6 +32,11 @@ class Trainer():
 
         self.args = args
 
+        if not os.path.exists('./checkpoints'):
+            os.makedirs('./checkpoints')
+        if not os.path.exists('./record'):
+            os.makedirs('./record')
+
         self.file_name = self.args.dataset + '_' + self.args.model + '_' + self.args.DDIsetting + '_' + str(self.args.gpu) + '_' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime()) 
         self.save_path = os.path.join('./checkpoints', self.args.dataset + '_' + self.args.model + '_' + self.args.DDIsetting + '_' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime()))
 

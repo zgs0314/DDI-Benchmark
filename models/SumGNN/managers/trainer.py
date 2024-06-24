@@ -118,12 +118,6 @@ class Trainer():
                         self.best_save_test_data = save_test_data
                         self.best_class_accuracies = class_accuracies
                     self.not_improved_count = 0
-                    # if self.params.dataset != 'twosides':
-                    #     pass
-                    # else:
-                    #     with open('experiments/%s/result.json'%(self.params.experiment_name), 'a') as f:
-                    #         f.write(json.dumps(save_test_data))
-                    #         f.write('\n')
                 else:
                     self.not_improved_count += 1
                     if self.not_improved_count > self.params.early_stop:

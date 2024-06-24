@@ -62,7 +62,7 @@ def main(params):
     logging.info(f"Device: {params.device}")
     logging.info(f"Input dim : {params.inp_dim}, # Relations : {params.num_rels}, # Augmented relations : {params.aug_num_rels}")
 
-    graph_classifier = initialize_model(params, dgl_model, params.load_model)
+    graph_classifier = initialize_model(params, dgl_model)
     if params.dataset == 'twosides':
         mfeat = []
         rfeat = []
@@ -105,131 +105,64 @@ def run_sumgnn(args, file_name, save_path):
 
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser(description='TransE model')
-
-    # Experiment setup params
-    parser.add_argument("--experiment_name", "-e", type=str, default="default1",
-                        help="A folder with this name would be created to dump saved models and log files")
-    # parser.add_argument("--dataset", "-d", type=str, default="drugbank", ### drugbank, twosides
-    #                     help="Dataset string")
-    # parser.add_argument("--gpu", type=int, default=2,
-    #                     help="Which GPU to use?")
-    parser.add_argument('--disable_cuda', action='store_true',
-                        help='Disable CUDA')
-    parser.add_argument('--load_model', type=bool, default=0,
-                        help='Load existing model?')
-    parser.add_argument("--train_file", "-tf", type=str, default="train",
-                        help="Name of file containing training triplets")
-    parser.add_argument("--valid_S0_file", "-vf0", type=str, default="valid_S0",
-                        help="Name of S0 file containing validation triplets")
-    parser.add_argument("--test_S0_file", "-ttf0", type=str, default="test_S0",
-                        help="Name of S0 file containing validation triplets")
-    parser.add_argument("--valid_S1_file", "-vf1", type=str, default="valid_S1",
-                        help="Name of S1 file containing validation triplets")
-    parser.add_argument("--test_S1_file", "-ttf1", type=str, default="test_S1",
-                        help="Name of S1 file containing validation triplets")
-    parser.add_argument("--valid_S2_file", "-vf2", type=str, default="valid_S2",
-                        help="Name of S2 file containing validation triplets")
-    parser.add_argument("--test_S2_file", "-ttf2", type=str, default="test_S2",
-                        help="Name of S2 file containing validation triplets")
-    # parser.add_argument("--setting", "-s", type=str, default="S0",
-    #                     help="DDI problem setting")
-    # Training regime params
-    parser.add_argument("--num_epochs", "-ne", type=int, default=40,
-                        help="Learning rate of the optimizer")
-    parser.add_argument("--eval_every", type=int, default=3,
-                        help="Interval of epochs to evaluate the model?")
-    parser.add_argument("--eval_every_iter", type=int, default=526,
-                        help="Interval of iterations to evaluate the model?")
-    parser.add_argument("--save_every", type=int, default=10,
-                        help="Interval of epochs to save a checkpoint of the model?")
-    parser.add_argument("--early_stop", type=int, default=10,
-                        help="Early stopping patience")
-    parser.add_argument("--optimizer", type=str, default="Adam",
-                        help="Which optimizer to use?")
-    # parser.add_argument("--lr", type=float, default=5e-3,
-    #                     help="Learning rate of the optimizer")
-    parser.add_argument("--clip", type=int, default=1000,
-                        help="Maximum gradient norm allowed")
-    parser.add_argument("--l2", type=float, default=1e-5,
-                        help="Regularization constant for GNN weights")
-
-    # Data processing pipeline params
-    parser.add_argument("--max_links", type=int, default=250000,
-                        help="Set maximum number of train links (to fit into memory)")
-    parser.add_argument("--hop", type=int, default=2,
-                        help="Enclosing subgraph hop number")
-    parser.add_argument("--max_nodes_per_hop", "-max_h", type=int, default=200,
-                        help="if > 0, upper bound the # nodes per hop by subsampling")
-    parser.add_argument("--use_kge_embeddings", "-kge", type=bool, default=False,
-                        help='whether to use pretrained KGE embeddings')
-    parser.add_argument("--kge_model", type=str, default="TransE",
-                        help="Which KGE model to load entity embeddings from")
-    parser.add_argument('--model_type', '-m', type=str, choices=['ssp', 'dgl'], default='dgl',
-                        help='what format to store subgraphs in for model')
-    parser.add_argument('--constrained_neg_prob', '-cn', type=float, default=0.0,
-                        help='with what probability to sample constrained heads/tails while neg sampling')
-    parser.add_argument("--batch_size", type=int, default=128,
-                        help="Batch size")
-    parser.add_argument("--num_neg_samples_per_link", '-neg', type=int, default=0,
-                        help="Number of negative examples to sample per positive link")
-    parser.add_argument("--num_workers", type=int, default=10,
-                        help="Number of dataloading processes")
-    parser.add_argument('--add_traspose_rels', '-tr', type=bool, default=False,
-                        help='whether to append adj matrix list with symmetric relations')
-    parser.add_argument('--enclosing_sub_graph', '-en', type=bool, default=True,
-                        help='whether to only consider enclosing subgraph')
-
-    # Model params
-    parser.add_argument("--rel_emb_dim", "-r_dim", type=int, default=32,
-                        help="Relation embedding size")
-    parser.add_argument("--attn_rel_emb_dim", "-ar_dim", type=int, default=32,
-                        help="Relation embedding size for attention")
-    parser.add_argument("--emb_dim", "-dim", type=int, default=32,
-                        help="Entity embedding size")
-    parser.add_argument("--num_gcn_layers", "-l", type=int, default=2,
-                        help="Number of GCN layers")
-    parser.add_argument("--num_bases", "-b", type=int, default=8,
-                        help="Number of basis functions to use for GCN weights")
-    parser.add_argument("--dropout", type=float, default=0.3,
-                        help="Dropout rate in GNN layers")
-    parser.add_argument("--edge_dropout", type=float, default=0.4,
-                        help="Dropout rate in edges of the subgraphs")
-    parser.add_argument('--gnn_agg_type', '-a', type=str, choices=['sum', 'mlp', 'gru'], default='sum',
-                        help='what type of aggregation to do in gnn msg passing')
-    parser.add_argument('--add_ht_emb', '-ht', type=bool, default=True,
-                        help='whether to concatenate head/tail embedding with pooled graph representation')
-    parser.add_argument('--add_sb_emb', '-sb', type=bool, default=True,
-                        help='whether to concatenate subgraph embedding with pooled graph representation')
-    parser.add_argument('--has_attn', '-attn', type=bool, default=True,
-                        help='whether to have attn in model or not')
-    parser.add_argument('--has_kg', '-kg', type=bool, default=True,
-                        help='whether to have kg in model or not')
-    parser.add_argument('--feat', '-f', type=str, default='morgan',
-                        help='the type of the feature we use in molecule modeling')
-    # parser.add_argument('--feat_dim', type=int, default=1024, ### 1024, 2048
-    #                     help='the dimension of the feature')
-    parser.add_argument('--add_feat_emb', '-feat', type=bool, default=True,
-                        help='whether to morgan feature embedding in model or not')
-    parser.add_argument('--add_transe_emb', type=bool, default=True,
-                        help='whether to have knowledge graph embedding in model or not')
-    parser.add_argument('--gamma', type=float, default=0.2,
-                        help='The threshold for attention')
-    parser.add_argument("--seed", type=int, default=12345, help="Random seed")
-
-    params = parser.parse_args()
-    initialize_experiment(params, __file__, file_name)
+    # params = parser.parse_args()
+    params = args
 
     ### params from the main function
+    params.model_type = 'dgl'
     params.save_pathh = save_path
-    params.dataset = args.dataset
-    params.gpu = args.gpu
-    params.lr = args.lr
     params.setting = args.setting_SumGNN
+    params.train_file = "train"
+    params.valid_S0_file = "valid_S0"
+    params.test_S0_file = "test_S0"
+    params.valid_S1_file = "valid_S1"
+    params.test_S1_file = "test_S1"
+    params.valid_S2_file = "valid_S2"
+    params.test_S2_file = "test_S2"
+    # Training regime params
+    params.num_epochs = 40
+    params.eval_every = 3
+    params.eval_every_iter = 526
+    params.save_every = 10
+    params.early_stop = 10
+    params.optimizer = "Adam"
+    params.clip = 1000
+    params.l2 = 1e-5
+    # Data processing pipeline params
+    params.max_links = 250000
+    params.hop = 2
+    params.max_nodes_per_hop = 200
+    params.use_kge_embeddings = False
+    params.kge_model = "TransE"
+    params.constrained_neg_prob = 0.0
+    params.num_neg_samples_per_link = 0
+    params.num_workers = 10
+    params.add_traspose_rels = False
+    params.enclosing_sub_graph = True
+    # Model params
+    params.rel_emb_dim = 32
+    params.attn_rel_emb_dim = 32
+    params.emb_dim = 32
+    params.num_gcn_layers = 2
+    params.num_bases = 8
+    params.dropout = 0.3
+    params.edge_dropout = 0.4
+    params.gnn_agg_type = 'sum'
+    params.add_ht_emb = True
+    params.add_sb_emb = True
+    params.has_attn = True
+    params.has_kg = True
+    params.feat = 'morgan'
+    params.add_feat_emb = True
+    params.add_transe_emb = True
+    params.gamma = 0.2
+
     if params.dataset == 'drugbank':
         params.feat_dim = 1024
     elif params.dataset == 'twosides':
         params.feat_dim = 2048
+    
+    initialize_experiment(params, __file__, file_name)
 
     params.file_paths = {
         'train': os.path.join(params.main_dir, 'data/{}/{}.txt'.format(params.dataset, params.train_file)),
@@ -242,6 +175,7 @@ def run_sumgnn(args, file_name, save_path):
     }
     # params.save_result = os.path.join(params.exp_dir, f'{params.dataset}_{params.setting}.txt')
     params.save_result = os.path.join(params.exp_dir, 'record' ,file_name + '.txt')
+
 
     if params.dataset != 'twosides':
         params.relation_class = {'Pharmacokinetic interactions - Absorption interactions': [2, 12, 17, 61, 66],

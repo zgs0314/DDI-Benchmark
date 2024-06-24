@@ -10,28 +10,22 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, Trials, partial
 
 import time
 
-# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-
-# if __name__ == '__main__':
 def run_emergnn_twosides(argss, file_name, save_path):
 
-    parser = argparse.ArgumentParser(description="Parser for EmerGNN")
-    parser.add_argument('--task_dir', type=str, default='./', help='the directory to dataset')
-    parser.add_argument('--dataset', type=str, default='S0', help='the directory to dataset')
-    parser.add_argument('--lamb', type=float, default=7e-4, help='set weight decay value')
-    parser.add_argument('--gpu', type=int, default=7, help='GPU id to load.')
-    parser.add_argument('--n_dim', type=int, default=128, help='set embedding dimension')
-    parser.add_argument('--save_model', action='store_true')
-    parser.add_argument('--load_model', action='store_true')
-    parser.add_argument('--lr', type=float, default=0.03, help='set learning rate')
-    parser.add_argument('--n_epoch', type=int, default=100, help='number of training epochs')
-    parser.add_argument('--n_batch', type=int, default=512, help='batch size')
-    parser.add_argument('--epoch_per_test', type=int, default=5, help='frequency of testing')
-    parser.add_argument('--test_batch_size', type=int, default=16, help='test batch size')
-    parser.add_argument('--seed', type=int, default=1234)
-
-    args = parser.parse_args()
+    args = argss
     args.sett = 'twosides'
+    args.dataset = argss.setting_EmerGNN
+    args.task_dir = './'
+    args.lamb = 7e-4
+    args.n_dim = 128
+    args.lr = 0.03
+    args.save_model = False
+    args.load_model = False
+    args.n_epoch = 100
+    args.n_batch = 512
+    args.epoch_per_test = 5
+    args.test_batch_size = 16
+    
     torch.cuda.set_device(args.gpu)
     dataloader = DataLoader(args)
     eval_ent, eval_rel = dataloader.eval_ent, dataloader.eval_rel
@@ -46,9 +40,6 @@ def run_emergnn_twosides(argss, file_name, save_path):
 
     args.ent_pair = dataloader.ent_pair
     args.train_ent = list(dataloader.train_ent)
-
-    if not os.path.exists('results'):
-        os.makedirs('results')
 
     def run_model(seed, file_name, save_path):
         print('seed: {}'.format(seed))
@@ -94,15 +85,12 @@ def run_emergnn_twosides(argss, file_name, save_path):
                 if v_pr > best_acc:
                     best_acc = v_pr
                     best_str = out_str
-                    if args.save_model:
-                        model.save_model(best_str, save_path)
+                    model.save_model(best_str, save_path)
                 print(out_str)
-                # with open(os.path.join('results', args.dataset+'_'+str(seed)+'_eval.txt'), 'a+') as f:
                 with open(os.path.join('record' ,file_name + '.txt'), 'a+') as f:
                     f.write(out_str + '\n')
         print('Best results:\t' + best_str)
-        # with open(os.path.join('results', args.dataset+'_'+str(seed)+'_eval.txt'), 'a+') as f:
-        with open(os.path.join('results', 'record' ,file_name + '.txt'), 'a+') as f:
+        with open(os.path.join('record' ,file_name + '.txt'), 'a+') as f:
             f.write('Best results:\t' + best_str + '\n\n')
         return -best_acc
 

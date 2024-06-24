@@ -1,1 +1,0 @@
-python -W ignore evaluate.py --dataset=S0 --n_epoch=40 --epoch_per_test=2 --gpu=1 --save_model

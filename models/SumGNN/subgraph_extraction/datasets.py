@@ -16,15 +16,12 @@ import pdb
 def generate_subgraph_datasets(params, splits=['train', 'valid_S0', 'test_S0', 'valid_S1', 'test_S1', 'valid_S2', 'test_S2'], saved_relation2id=None, max_label_value=None):
 
     testing = 'test_S0' in splits
-    #adj_list, triplets, entity2id, relation2id, id2entity, id2relation, rel = process_files(params.file_paths, saved_relation2id)
 
     triple_file = 'data/{}/relations_2hop.txt'.format(params.dataset) 
     if params.dataset == 'twosides':
         adj_list, triplets, entity2id, relation2id, id2entity, id2relation, rel, triplets_mr, polarity_mr = process_files_decagon(params.file_paths, triple_file, saved_relation2id)
     else:
         adj_list, triplets, entity2id, relation2id, id2entity, id2relation, rel = process_files_ddi(params.file_paths, triple_file, saved_relation2id)
-    # plot_rel_dist(adj_list, os.path.join(params.main_dir, f'data/{params.dataset}/rel_dist.png'))
-    #print(triplets.keys(), triplets_mr.keys())
     data_path = os.path.join(params.main_dir, f'data/{params.dataset}/relation2id.json')
     if not os.path.isdir(data_path) and testing:
         with open(data_path, 'w') as f:
